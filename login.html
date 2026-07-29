@@ -19,7 +19,7 @@
 <div class="card">
 
 <h1 style="text-align:center;">
-IMT EARN
+💰 IMT EARN
 </h1>
 
 <h3>
@@ -62,19 +62,29 @@ Create Account
 
 <script type="module">
 
-import { auth } from "./firebase.js";
+import { auth, db } from "./firebase.js";
 
 import {
 signInWithEmailAndPassword
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
+import {
+doc,
+getDoc
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
 const loginBtn = document.getElementById("loginBtn");
+loginBtn.addEventListener("click", async()=>{
 
-loginBtn.addEventListener("click", async () => {
 
-const email = document.getElementById("email").value.trim();
+const email =
+document.getElementById("email").value.trim();
 
-const password = document.getElementById("password").value.trim();
+
+const password =
+document.getElementById("password").value.trim();
+
+
 
 if(!email || !password){
 
@@ -84,27 +94,77 @@ return;
 
 }
 
+
+
 try {
 
+
+const userCredential =
 await signInWithEmailAndPassword(
 auth,
 email,
 password
 );
 
-alert("Login Successful!");
 
-// Login کے بعد Packages Page کھلے گا
-window.location.href = "packages.html";
 
-} catch (error) {
+const user = userCredential.user;
 
-alert(error.message);
+
+
+const userRef =
+doc(db,"users",user.uid);
+
+
+
+const snap =
+await getDoc(userRef);
+
+
+
+if(snap.exists()){
+
+
+const data = snap.data();
+
+
+
+if(data.packageStatus === "Approved"){
+
+
+window.location.href="index.html";
+
+
+}else{
+
+
+window.location.href="packages.html";
+
 
 }
 
-});
 
+
+}else{
+
+
+window.location.href="packages.html";
+
+
+}
+
+
+
+} catch(error){
+
+
+alert(error.message);
+
+
+}
+
+
+});
 </script>
 
 </body>
