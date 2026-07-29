@@ -14,101 +14,209 @@
 
 <body>
 
+
 <div class="container">
 
 <div class="card" style="text-align:center;">
+
 
 <h1>🟡 Payment Under Review</h1>
 
 <br>
 
-<h2>Please Wait Up To 24 Hours</h2>
+<h2 id="mainStatus">
+Checking Status...
+</h2>
+
 
 <br>
+
 
 <p>
 Your deposit request has been submitted successfully.
 </p>
 
-<br>
 
-<p>
-Our team is reviewing your payment.
-Once approved, your account will be activated automatically.
-</p>
-
-<br>
-
-<h3 id="statusText" style="color:orange;">
-Status : Pending
+<h3 id="statusText">
+Please wait...
 </h3>
 
+
 <br>
+
 
 <button id="refreshBtn">
 🔄 Refresh Status
 </button>
 
+
 </div>
+
 <script type="module">
 
 import { auth, db } from "./firebase.js";
 
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+import {
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
-const refreshBtn = document.getElementById("refreshBtn");
-const statusText = document.getElementById("statusText");
 
-onAuthStateChanged(auth, (user) => {
+import {
+doc,
+getDoc
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-if (!user) {
 
-window.location.href = "login.html";
-return;
 
-}
+const refreshBtn =
+document.getElementById("refreshBtn");
 
-refreshBtn.addEventListener("click", async () => {
 
-try {
+const statusText =
+document.getElementById("statusText");
 
-const userRef = doc(db, "users", user.uid);
 
-const snap = await getDoc(userRef);
+const mainStatus =
+document.getElementById("mainStatus");
 
-if (snap.exists()) {
+
+
+
+async function checkStatus(user){
+
+
+try{
+
+
+const userRef =
+doc(db,"users",user.uid);
+
+
+
+const snap =
+await getDoc(userRef);
+
+
+
+if(snap.exists()){
+
 
 const data = snap.data();
 
-if (data.packageStatus === "Approved") {
 
-alert("Congratulations! Your account has been approved.");
 
-window.location.href = "index.html";
+const status =
+(data.packageStatus || "").trim();
 
-} else {
 
-statusText.innerHTML = "🟡 Status : Pending";
 
-alert("Your payment is still under review.");
+if(status.toLowerCase() === "approved"){
+
+
+
+mainStatus.innerHTML =
+"✅ Account Approved";
+
+
+statusText.innerHTML =
+"Redirecting to Dashboard...";
+
+
+
+setTimeout(()=>{
+
+
+window.location.href="index.html";
+
+
+},1500);
+
+
+
+}else{
+
+
+
+mainStatus.innerHTML =
+"🟡 Payment Under Review";
+
+
+statusText.innerHTML =
+"Status : Pending";
+
+
 
 }
 
+
+
+}else{
+
+
+statusText.innerHTML =
+"User data not found";
+
+
 }
 
-} catch (error) {
+
+
+}catch(error){
+
 
 alert(error.message);
 
+
 }
 
-});
+
+
+}
+
+
+
+
+onAuthStateChanged(auth,(user)=>{
+
+
+if(!user){
+
+
+window.location.href="login.html";
+
+
+return;
+
+
+}
+
+
+
+checkStatus(user);
+
+
+
+refreshBtn.addEventListener("click",()=>{
+
+
+checkStatus(user);
+
+
 
 });
+
+
+
+});
+
+
 
 </script>
+
+
+</div>
+
 
 </body>
 
