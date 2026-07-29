@@ -18,7 +18,9 @@
 
 <div class="card">
 
-<h1 style="text-align:center;">IMT EARN</h1>
+<h1 style="text-align:center;">
+💰 IMT EARN
+</h1>
 
 <h3>Create Account</h3>
 
@@ -67,9 +69,9 @@ placeholder="Referral ID (Optional)">
 <button id="registerBtn">
 Register Account
 </button>
-</div>
 
-<div class="card" style="text-align:center;">
+</div> 
+  <div class="card" style="text-align:center;">
 
 <p>
 Already have an account?
@@ -98,21 +100,37 @@ setDoc,
 serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
+
 const registerBtn = document.getElementById("registerBtn");
 
-registerBtn.addEventListener("click", async () => {
 
-const fullName = document.getElementById("fullName").value.trim();
+registerBtn.addEventListener("click", async()=>{
 
-const mobile = document.getElementById("mobile").value.trim();
 
-const email = document.getElementById("email").value.trim();
+const fullName =
+document.getElementById("fullName").value.trim();
 
-const address = document.getElementById("address").value.trim();
 
-const password = document.getElementById("password").value.trim();
+const mobile =
+document.getElementById("mobile").value.trim();
 
-const referral = document.getElementById("referral").value.trim();
+
+const email =
+document.getElementById("email").value.trim();
+
+
+const address =
+document.getElementById("address").value.trim();
+
+
+const password =
+document.getElementById("password").value.trim();
+
+
+const referral =
+document.getElementById("referral").value.trim();
+
+
 
 if(!fullName || !mobile || !email || !address || !password){
 
@@ -121,53 +139,76 @@ alert("Please fill all required fields.");
 return;
 
 }
-  try {
 
-const userCredential = await createUserWithEmailAndPassword(
+
+try {
+
+
+const userCredential =
+await createUserWithEmailAndPassword(
 auth,
 email,
 password
 );
 
-await updateProfile(userCredential.user, {
+
+await updateProfile(userCredential.user,{
+
 displayName: fullName
-});
-
-await setDoc(doc(db, "users", userCredential.user.uid), {
-
-name: fullName,
-
-mobile: mobile,
-
-email: email,
-
-address: address,
-
-referral: referral,
-
-balance: 0,
-
-package: "No Package",
-
-status: "Pending",
-
-createdAt: serverTimestamp()
 
 });
 
+
+await setDoc(
+doc(db,"users",userCredential.user.uid),
+{
+
+uid:userCredential.user.uid,
+
+name:fullName,
+
+mobile:mobile,
+
+email:email,
+
+address:address,
+
+referral:referral,
+
+balance:0,
+
+package:"No Package",
+
+packageStatus:"Pending",
+
+team:0,
+
+teamIncome:0,
+
+status:"Active",
+
+createdAt:serverTimestamp()
+
+}
+
+); 
 alert("Registration Successful!");
 
 window.location.href = "login.html";
 
-} catch (error) {
+
+} catch(error) {
 
 alert(error.message);
 
 }
 
+
 });
 
+
 </script>
+
 
 </body>
 
