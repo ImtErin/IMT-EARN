@@ -22,16 +22,35 @@
 
 <h2>Admin Panel</h2>
 
-<p>Deposit Requests</p>
+<p>Manage Deposit & Withdraw Requests</p>
 
 </div>
+
+<div class="card">
+
+<h2>📥 Deposit Requests</h2>
 
 <div id="requestList">
 
+<h3>Loading Deposit Requests...</h3>
+
 </div>
 
-</div> 
-  <script type="module">
+</div>
+
+<div class="card">
+
+<h2>💸 Withdraw Requests</h2>
+
+<div id="withdrawList">
+
+<h3>Loading Withdraw Requests...</h3>
+
+</div>
+
+</div>
+
+<script type="module">
 
 import { auth, db } from "./firebase.js";
 
@@ -45,23 +64,30 @@ getDocs
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
 const requestList = document.getElementById("requestList");
+const withdrawList = document.getElementById("withdrawList");
 
 onAuthStateChanged(auth, async (user) => {
 
 if(!user){
 
-window.location.href = "login.html";
+window.location.href="login.html";
+
 return;
 
 }
 
-requestList.innerHTML = "<h3>Loading Requests...</h3>";
+requestList.innerHTML="<h3>Loading...</h3>";
 
-const snapshot = await getDocs(collection(db,"deposits"));
+withdrawList.innerHTML="<h3>Loading...</h3>";
 
-requestList.innerHTML = "";
+const depositSnapshot = await getDocs(collection(db,"deposits"));
 
-snapshot.forEach((docSnap)=>{
+const withdrawSnapshot = await getDocs(collection(db,"withdrawRequests"));
+
+requestList.innerHTML="";
+
+withdrawList.innerHTML=""; 
+depositSnapshot.forEach((docSnap)=>{
 
 const data = docSnap.data();
 
@@ -93,8 +119,44 @@ requestList.innerHTML += `
 
 });
 
+withdrawSnapshot.forEach((docSnap)=>{
+
+const data = docSnap.data();
+
+withdrawList.innerHTML += `
+
+<div class="card">
+
+<h3>💸 Withdraw Request</h3>
+
+<p><b>Method:</b> ${data.paymentMethod}</p>
+
+<p><b>Account Holder:</b> ${data.accountName}</p>
+
+<p><b>Account Number:</b> ${data.accountNumber}</p>
+
+<p><b>Amount:</b> Rs ${data.amount}</p>
+
+<p><b>Status:</b> ${data.status}</p>
+
+<br>
+
+<button onclick="approveWithdraw('${docSnap.id}')">
+✅ Approve
+</button>
+
+<button onclick="rejectWithdraw('${docSnap.id}')">
+❌ Reject
+</button>
+
+</div>
+
+`;
+
 });
-    window.approveRequest = async (id) => {
+
+}); 
+window.approveRequest = async (id) => {
 
 try {
 
@@ -112,7 +174,7 @@ alert("Deposit Approved Successfully!");
 
 location.reload();
 
-} catch (error) {
+} catch(error){
 
 alert(error.message);
 
@@ -138,7 +200,59 @@ alert("Deposit Rejected!");
 
 location.reload();
 
-} catch (error) {
+} catch(error){
+
+alert(error.message);
+
+}
+
+};
+
+window.approveWithdraw = async (id) => {
+
+try {
+
+const { doc, updateDoc } = await import(
+"https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js"
+);
+
+await updateDoc(doc(db, "withdrawRequests", id), {
+
+status: "Approved"
+
+});
+
+alert("Withdraw Approved Successfully!");
+
+location.reload();
+
+} catch(error){
+
+alert(error.message);
+
+}
+
+};
+
+window.rejectWithdraw = async (id) => {
+
+try {
+
+const { doc, updateDoc } = await import(
+"https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js"
+);
+
+await updateDoc(doc(db, "withdrawRequests", id), {
+
+status: "Rejected"
+
+});
+
+alert("Withdraw Rejected!");
+
+location.reload();
+
+} catch(error){
 
 alert(error.message);
 
