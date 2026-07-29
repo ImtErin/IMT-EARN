@@ -26,6 +26,7 @@
 
 </div>
 
+
 <div class="card">
 
 <h2>JazzCash Payment Details</h2>
@@ -48,53 +49,72 @@ Ullah Rakhi
 
 <p><b>Selected Package</b></p>
 
-<input
-type="text"
-id="packageName"
-readonly>
+<h3 id="packageName">
+Loading...
+</h3>
+
+<p><b>Package Amount</b></p>
+
+<h3 id="packageAmount">
+Rs 0
+</h3>
 
 </div>
+
 
 <div class="card">
 
 <h2>Submit Payment Details</h2>
+
 
 <input
 type="number"
 id="senderNumber"
 placeholder="Sender Mobile Number">
 
+
 <br><br>
+
 
 <input
 type="text"
 id="trxId"
 placeholder="Transaction ID (TRX ID)">
 
+
 <br><br>
+
 
 <input
 type="file"
 id="paymentScreenshot"
 accept="image/*">
 
+
 <br><br>
+
 
 <button id="submitDeposit">
 Submit Deposit Request
 </button>
 
-</div>
 
 </div>
+
+
+</div>
+
 
 <script type="module">
 
+
 import { auth, db } from "./firebase.js";
+
 
 import {
 onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
 
 import {
 collection,
@@ -102,16 +122,51 @@ addDoc,
 serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-const packageName = document.getElementById("packageName");
-const senderNumber = document.getElementById("senderNumber");
-const trxId = document.getElementById("trxId");
-const paymentScreenshot = document.getElementById("paymentScreenshot");
-const submitDeposit = document.getElementById("submitDeposit");
 
-packageName.value =
+const packageName =
+document.getElementById("packageName");
+
+
+const packageAmount =
+document.getElementById("packageAmount");
+
+
+const senderNumber =
+document.getElementById("senderNumber");
+
+
+const trxId =
+document.getElementById("trxId");
+
+
+const paymentScreenshot =
+document.getElementById("paymentScreenshot");
+
+
+const submitDeposit =
+document.getElementById("submitDeposit");
+
+
+
+const selectedPackage =
 localStorage.getItem("selectedPackage") || "No Package Selected";
 
+
+const selectedAmount =
+Number(localStorage.getItem("packageAmount")) || 0;
+
+
+
+packageName.innerHTML = selectedPackage;
+
+
+packageAmount.innerHTML =
+"Rs " + selectedAmount;
+
+
+
 onAuthStateChanged(auth,(user)=>{
+
 
 if(!user){
 
@@ -119,11 +174,17 @@ window.location.href="login.html";
 
 }
 
+
 });
+
+
 
 submitDeposit.addEventListener("click",async()=>{
 
-const user=auth.currentUser;
+
+const user = auth.currentUser;
+
+
 
 if(!user){
 
@@ -133,70 +194,100 @@ return;
 
 }
 
-if(packageName.value==="No Package Selected"){
+
+
+if(selectedPackage==="No Package Selected"){
+
 
 alert("Please select a package first.");
 
 return;
 
+
 }
 
-if(senderNumber.value.trim()===""){
 
-alert("Please enter Sender Mobile Number.");
+
+if(senderNumber.value.trim()==="" ||
+trxId.value.trim()===""){
+
+
+alert("Please fill all details.");
 
 return;
 
-}
-
-if(trxId.value.trim()===""){
-
-alert("Please enter Transaction ID.");
-
-return;
 
 }
+
+
 
 if(paymentScreenshot.files.length===0){
+
 
 alert("Please upload payment screenshot.");
 
 return;
 
+
 }
+
+
 
 try{
 
+
 await addDoc(collection(db,"deposits"),{
+
 
 uid:user.uid,
 
-package:packageName.value,
+
+package:selectedPackage,
+
+
+amount:selectedAmount,
+
 
 senderNumber:senderNumber.value.trim(),
 
+
 trxId:trxId.value.trim(),
+
 
 status:"Pending",
 
+
 createdAt:serverTimestamp()
+
 
 });
 
-alert("Deposit request submitted successfully.");
+
+
+alert("Deposit request submitted successfully!");
+
+
 
 window.location.href="pending.html";
 
+
+
 }catch(error){
+
 
 alert(error.message);
 
+
 }
+
+
 
 });
 
+
 </script>
+
 
 </body>
 
-</html>
+</html> 
