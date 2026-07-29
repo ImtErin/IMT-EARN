@@ -24,19 +24,19 @@
 
 </div>
 
+
 <div class="card">
 
 <h2>🥈 Package 01</h2>
 
 <p>Investment: Rs 750</p>
 
-<br>
-
-<button onclick="location.href='deposit.html'">
+<button onclick="buyPackage('Package 01',750)">
 Buy Now
 </button>
 
 </div>
+
 
 <div class="card">
 
@@ -44,13 +44,12 @@ Buy Now
 
 <p>Investment: Rs 1200</p>
 
-<br>
-
-<button onclick="location.href='deposit.html'">
+<button onclick="buyPackage('Package 02',1200)">
 Buy Now
 </button>
 
 </div>
+
 
 <div class="card">
 
@@ -58,13 +57,12 @@ Buy Now
 
 <p>Investment: Rs 1800</p>
 
-<br>
-
-<button onclick="location.href='deposit.html'">
+<button onclick="buyPackage('Package 03',1800)">
 Buy Now
 </button>
 
 </div>
+
 
 <div class="card">
 
@@ -72,13 +70,12 @@ Buy Now
 
 <p>Investment: Rs 3000</p>
 
-<br>
-
-<button onclick="location.href='deposit.html'">
+<button onclick="buyPackage('Package 04',3000)">
 Buy Now
 </button>
 
 </div>
+
 
 <div class="card">
 
@@ -86,13 +83,12 @@ Buy Now
 
 <p>Investment: Rs 6000</p>
 
-<br>
-
-<button onclick="location.href='deposit.html'">
+<button onclick="buyPackage('Package 05',6000)">
 Buy Now
 </button>
 
 </div>
+
 
 <div class="card">
 
@@ -100,13 +96,12 @@ Buy Now
 
 <p>Investment: Rs 9500</p>
 
-<br>
-
-<button onclick="location.href='deposit.html'">
+<button onclick="buyPackage('Package 06',9500)">
 Buy Now
 </button>
 
 </div>
+
 
 <div class="card">
 
@@ -114,13 +109,12 @@ Buy Now
 
 <p>Investment: Rs 15000</p>
 
-<br>
-
-<button onclick="location.href='deposit.html'">
+<button onclick="buyPackage('Package 07',15000)">
 Buy Now
 </button>
 
 </div>
+
 
 <div class="card">
 
@@ -128,15 +122,40 @@ Buy Now
 
 <p>Investment: Rs 22000</p>
 
-<br>
-
-<button onclick="location.href='deposit.html'">
+<button onclick="buyPackage('Package 08',22000)">
 Buy Now
 </button>
 
 </div>
 
+
 </div>
+
+
+<script>
+
+function buyPackage(name, amount){
+
+
+localStorage.setItem(
+"selectedPackage",
+name
+);
+
+
+localStorage.setItem(
+"packageAmount",
+amount
+);
+
+
+window.location.href="deposit.html";
+
+
+}
+
+</script>
+
 
 </body>
 
