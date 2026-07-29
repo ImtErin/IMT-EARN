@@ -12,49 +12,38 @@
 
 </head>
 
-
 <body>
 
 <div class="container">
 
-
 <div class="card">
-
 
 <h1 style="text-align:center;">
 IMT EARN
 </h1>
 
-
 <h3>
 Login Account
 </h3>
 
-
-<input 
+<input
 type="email"
+id="email"
 placeholder="Email Address">
 
-
 <br><br>
 
-
-<input 
+<input
 type="password"
+id="password"
 placeholder="Password">
 
-
 <br><br>
 
-
-<button>
+<button id="loginBtn">
 Login
 </button>
-
-
 </div>
-
-
 
 <div class="card" style="text-align:center;">
 
@@ -68,10 +57,52 @@ Create Account
 
 </div>
 
-
-
 </div>
 
+<script type="module">
+
+import { auth } from "./firebase.js";
+
+import {
+signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+const loginBtn = document.getElementById("loginBtn");
+
+loginBtn.addEventListener("click", async () => {
+
+const email = document.getElementById("email").value.trim();
+
+const password = document.getElementById("password").value.trim();
+
+if(!email || !password){
+
+alert("Please enter Email and Password.");
+
+return;
+
+}
+  try {
+
+await signInWithEmailAndPassword(
+auth,
+email,
+password
+);
+
+alert("Login Successful!");
+
+window.location.href = "index.html";
+
+} catch (error) {
+
+alert(error.message);
+
+}
+
+});
+
+</script>
 
 </body>
 
