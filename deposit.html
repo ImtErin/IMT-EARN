@@ -22,33 +22,29 @@
 
 <h3>Deposit Payment</h3>
 
+<p>Please complete your payment using the JazzCash account below.</p>
+
 </div>
 
 <div class="card">
 
-<h2>JazzCash Payment</h2>
+<h2>JazzCash Payment Details</h2>
 
-<p><b>Account Name:</b></p>
+<p><b>Account Holder Name</b></p>
 
-<p>IMT EARN</p>
+<h3 style="color:#0d6efd;">
+Ullah Rakhi
+</h3>
 
 <br>
 
-<p><b>JazzCash Number:</b></p>
+<p><b>JazzCash Number</b></p>
 
-<h2 style="color:#ffd700;" id="jazzNumber">
-03XX XXXXXXX
+<h2 style="color:#16a34a;">
+03038369744
 </h2>
 
-<p>
-Please send your package payment on this number.
-</p>
-
-</div>
-
-<div class="card">
-
-<h2>Submit Payment Details</h2>
+<br>
 
 <p><b>Selected Package</b></p>
 
@@ -57,7 +53,11 @@ type="text"
 id="packageName"
 readonly>
 
-<br><br>
+</div>
+
+<div class="card">
+
+<h2>Submit Payment Details</h2>
 
 <input
 type="number"
@@ -69,7 +69,7 @@ placeholder="Sender Mobile Number">
 <input
 type="text"
 id="trxId"
-placeholder="TRX ID">
+placeholder="Transaction ID (TRX ID)">
 
 <br><br>
 
@@ -81,8 +81,11 @@ accept="image/*">
 <br><br>
 
 <button id="submitDeposit">
-Submit Request
+Submit Deposit Request
 </button>
+
+</div>
+
 </div>
 
 <script type="module">
@@ -102,24 +105,25 @@ serverTimestamp
 const packageName = document.getElementById("packageName");
 const senderNumber = document.getElementById("senderNumber");
 const trxId = document.getElementById("trxId");
+const paymentScreenshot = document.getElementById("paymentScreenshot");
 const submitDeposit = document.getElementById("submitDeposit");
 
 packageName.value =
 localStorage.getItem("selectedPackage") || "No Package Selected";
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth,(user)=>{
 
 if(!user){
 
-window.location.href = "login.html";
+window.location.href="login.html";
 
 }
 
 });
 
-submitDeposit.addEventListener("click", async () => {
+submitDeposit.addEventListener("click",async()=>{
 
-const user = auth.currentUser;
+const user=auth.currentUser;
 
 if(!user){
 
@@ -129,39 +133,61 @@ return;
 
 }
 
-if(
-senderNumber.value.trim() === "" ||
-trxId.value.trim() === ""
-){
+if(packageName.value==="No Package Selected"){
 
-alert("Please fill all required fields.");
+alert("Please select a package first.");
 
 return;
 
-} 
-try {
+}
 
-await addDoc(collection(db, "deposits"), {
+if(senderNumber.value.trim()===""){
 
-uid: user.uid,
+alert("Please enter Sender Mobile Number.");
 
-package: packageName.value,
+return;
 
-senderNumber: senderNumber.value.trim(),
+}
 
-trxId: trxId.value.trim(),
+if(trxId.value.trim()===""){
 
-status: "Pending",
+alert("Please enter Transaction ID.");
 
-createdAt: serverTimestamp()
+return;
+
+}
+
+if(paymentScreenshot.files.length===0){
+
+alert("Please upload payment screenshot.");
+
+return;
+
+}
+
+try{
+
+await addDoc(collection(db,"deposits"),{
+
+uid:user.uid,
+
+package:packageName.value,
+
+senderNumber:senderNumber.value.trim(),
+
+trxId:trxId.value.trim(),
+
+status:"Pending",
+
+createdAt:serverTimestamp()
 
 });
 
-alert("Deposit request submitted successfully!");
+alert("Deposit request submitted successfully.");
 
-window.location.href = "pending.html";
+window.location.href="pending.html";
 
-} catch (error) {
+}catch(error){
 
 alert(error.message);
 
