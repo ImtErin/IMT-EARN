@@ -12,11 +12,9 @@
 
 </head>
 
-
 <body>
 
 <div class="container">
-
 
 <div class="card">
 
@@ -24,56 +22,57 @@
 
 <h3>Create Account</h3>
 
-
-<input type="text" placeholder="Full Name">
-
-
-<br><br>
-
-
-<input type="number" placeholder="Mobile Number">
-
+<input
+type="text"
+id="fullName"
+placeholder="Full Name">
 
 <br><br>
 
-
-<input type="email" placeholder="Email Address">
-
-
-<br><br>
-
-
-<input type="text" placeholder="Address">
-
+<input
+type="number"
+id="mobile"
+placeholder="Mobile Number">
 
 <br><br>
 
-
-<input type="password" placeholder="Create Password">
-
-
-<br><br>
-
-
-<input type="text" placeholder="Referral ID (Optional)">
-
+<input
+type="email"
+id="email"
+placeholder="Email Address">
 
 <br><br>
 
+<input
+type="text"
+id="address"
+placeholder="Address">
 
-<button>
+<br><br>
+
+<input
+type="password"
+id="password"
+placeholder="Create Password">
+
+<br><br>
+
+<input
+type="text"
+id="referral"
+placeholder="Referral ID (Optional)">
+
+<br><br>
+
+<button id="registerBtn">
 Register Account
 </button>
-
-
 </div>
-
-
 
 <div class="card" style="text-align:center;">
 
 <p>
-Already have account?
+Already have an account?
 </p>
 
 <a href="login.html">
@@ -82,9 +81,93 @@ Login Here
 
 </div>
 
-
 </div>
 
+<script type="module">
+
+import { auth, db } from "./firebase.js";
+
+import {
+createUserWithEmailAndPassword,
+updateProfile
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+import {
+doc,
+setDoc,
+serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+const registerBtn = document.getElementById("registerBtn");
+
+registerBtn.addEventListener("click", async () => {
+
+const fullName = document.getElementById("fullName").value.trim();
+
+const mobile = document.getElementById("mobile").value.trim();
+
+const email = document.getElementById("email").value.trim();
+
+const address = document.getElementById("address").value.trim();
+
+const password = document.getElementById("password").value.trim();
+
+const referral = document.getElementById("referral").value.trim();
+
+if(!fullName || !mobile || !email || !address || !password){
+
+alert("Please fill all required fields.");
+
+return;
+
+}
+  try {
+
+const userCredential = await createUserWithEmailAndPassword(
+auth,
+email,
+password
+);
+
+await updateProfile(userCredential.user, {
+displayName: fullName
+});
+
+await setDoc(doc(db, "users", userCredential.user.uid), {
+
+name: fullName,
+
+mobile: mobile,
+
+email: email,
+
+address: address,
+
+referral: referral,
+
+balance: 0,
+
+package: "No Package",
+
+status: "Pending",
+
+createdAt: serverTimestamp()
+
+});
+
+alert("Registration Successful!");
+
+window.location.href = "login.html";
+
+} catch (error) {
+
+alert(error.message);
+
+}
+
+});
+
+</script>
 
 </body>
 
