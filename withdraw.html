@@ -12,12 +12,9 @@
 
 </head>
 
-
 <body>
 
-
 <div class="container">
-
 
 <div class="card" style="text-align:center;">
 
@@ -25,17 +22,25 @@
 
 <h3>Withdraw Request</h3>
 
+<p>Select your payment method and submit your withdrawal request.</p>
+
 </div>
-
-
 
 <div class="card">
 
+<h2>Withdraw Details</h2>
 
-<h2>Select Withdrawal Method</h2>
+<p><b>Available Balance</b></p>
 
+<h2 style="color:#16a34a;" id="availableBalance">
+Rs 0
+</h2>
 
-<select>
+<br>
+
+<select id="paymentMethod">
+
+<option value="">Select Payment Method</option>
 
 <option>JazzCash</option>
 
@@ -49,56 +54,145 @@
 
 </select>
 
-
 <br><br>
 
-
-<input 
+<input
 type="text"
+id="accountName"
 placeholder="Account Holder Name">
 
-
 <br><br>
 
-
-<input 
+<input
 type="number"
+id="accountNumber"
 placeholder="Account Number">
 
-
 <br><br>
 
-
-<input 
+<input
 type="number"
+id="withdrawAmount"
 placeholder="Withdraw Amount">
 
-
 <br><br>
 
-
-<button>
-Submit Withdraw Request
+<button id="submitWithdraw">
+Submit Request
 </button>
 
+</div> 
+  <script type="module">
 
-</div>
+import { auth, db } from "./firebase.js";
 
+import {
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
-<div class="card">
+import {
+doc,
+getDoc,
+collection,
+addDoc,
+serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-<h3>Note:</h3>
+const availableBalance = document.getElementById("availableBalance");
+const paymentMethod = document.getElementById("paymentMethod");
+const accountName = document.getElementById("accountName");
+const accountNumber = document.getElementById("accountNumber");
+const withdrawAmount = document.getElementById("withdrawAmount");
+const submitWithdraw = document.getElementById("submitWithdraw");
 
-<p>
-Your withdrawal request will be reviewed and processed after approval.
-</p>
+let currentBalance = 0;
 
-</div>
+onAuthStateChanged(auth, async (user) => {
 
+if (!user) {
 
+window.location.href = "login.html";
+return;
 
-</div>
+}
 
+const userRef = doc(db, "users", user.uid);
+const snap = await getDoc(userRef);
+
+if (snap.exists()) {
+
+const data = snap.data();
+
+currentBalance = data.balance || 0;
+
+availableBalance.innerHTML = "Rs " + currentBalance;
+
+}
+
+}); 
+    submitWithdraw.addEventListener("click", async () => {
+
+const user = auth.currentUser;
+
+if (!paymentMethod.value ||
+!accountName.value.trim() ||
+!accountNumber.value.trim() ||
+!withdrawAmount.value.trim()) {
+
+alert("Please fill all fields.");
+return;
+
+}
+
+const amount = Number(withdrawAmount.value);
+
+if (amount <= 0) {
+
+alert("Please enter a valid amount.");
+return;
+
+}
+
+if (amount > currentBalance) {
+
+alert("Insufficient balance.");
+return;
+
+}
+
+try {
+
+await addDoc(collection(db, "withdrawRequests"), {
+
+uid: user.uid,
+
+paymentMethod: paymentMethod.value,
+
+accountName: accountName.value.trim(),
+
+accountNumber: accountNumber.value.trim(),
+
+amount: amount,
+
+status: "Pending",
+
+createdAt: serverTimestamp()
+
+});
+
+alert("Withdraw request submitted successfully.");
+
+window.location.href = "pending.html";
+
+} catch (error) {
+
+alert(error.message);
+
+}
+
+});
+
+</script>
 
 </body>
 
