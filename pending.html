@@ -50,3 +50,66 @@ Status : Pending
 </button>
 
 </div>
+<script type="module">
+
+import { auth, db } from "./firebase.js";
+
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
+const refreshBtn = document.getElementById("refreshBtn");
+const statusText = document.getElementById("statusText");
+
+onAuthStateChanged(auth, (user) => {
+
+if (!user) {
+
+window.location.href = "login.html";
+return;
+
+}
+
+refreshBtn.addEventListener("click", async () => {
+
+try {
+
+const userRef = doc(db, "users", user.uid);
+
+const snap = await getDoc(userRef);
+
+if (snap.exists()) {
+
+const data = snap.data();
+
+if (data.packageStatus === "Approved") {
+
+alert("Congratulations! Your account has been approved.");
+
+window.location.href = "index.html";
+
+} else {
+
+statusText.innerHTML = "🟡 Status : Pending";
+
+alert("Your payment is still under review.");
+
+}
+
+}
+
+} catch (error) {
+
+alert(error.message);
+
+}
+
+});
+
+});
+
+</script>
+
+</body>
+
+</html>
