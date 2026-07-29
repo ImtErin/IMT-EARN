@@ -6,62 +6,55 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>IMT EARN</title>
+<title>IMT EARN Dashboard</title>
 
 <link rel="stylesheet" href="style.css">
 
 </head>
 
-
 <body>
-
 
 <div class="container">
 
-
 <div class="card" style="text-align:center;">
 
-<h1>IMT EARN</h1>
+<h1>💰 IMT EARN</h1>
 
-<p>Welcome To IMT EARN</p>
+<p>Welcome Back</p>
+
+<h2 id="userName">Loading...</h2>
+
+<p id="userEmail"></p>
 
 </div>
-
-
 
 <div class="card">
 
-<h3>💰 Balance</h3>
+<h3>💰 Available Balance</h3>
 
-<h1>Rs 0</h1>
-
-<p>Available Balance</p>
+<h1 id="userBalance">Rs 0</h1>
 
 </div>
-
-
 
 <div class="card">
 
-<h3>📦 My Package</h3>
+<h3>📦 Active Package</h3>
 
-<p>No Active Package</p>
+<h2 id="userPackage">No Active Package</h2>
+
+<p id="packageStatus">Pending</p>
 
 </div>
-
-
 
 <div class="card">
 
-<h3>👥 Team</h3>
+<h3>👥 Team Information</h3>
 
-<p>Total Team: 0</p>
+<p>Total Team: <span id="totalTeam">0</span></p>
 
-<p>Team Income: Rs 0</p>
+<p>Team Income: <span id="teamIncome">Rs 0</span></p>
 
 </div>
-
-
 
 <div class="card">
 
@@ -91,12 +84,107 @@ Withdraw
 My Team
 </button>
 
+<br><br>
+
+<button id="logoutBtn">
+Logout
+</button>
+
 </div>
 
+<script type="module">
+
+import { auth, db } from "./firebase.js";
+
+import {
+onAuthStateChanged,
+signOut
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+import {
+doc,
+getDoc
+} from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+  onAuthStateChanged(auth, async (user)=>{
+
+if(!user){
+
+window.location.href="login.html";
+
+return;
+
+}
+
+
+const userRef = doc(db,"users",user.uid);
+
+const snap = await getDoc(userRef);
+
+
+document.getElementById("userEmail").innerHTML =
+user.email;
+
+
+if(snap.exists()){
+
+
+const data = snap.data();
+
+
+document.getElementById("userName").innerHTML =
+data.name || "IMT EARN User";
+
+
+document.getElementById("userBalance").innerHTML =
+"Rs " + (data.balance || 0);
+
+
+document.getElementById("userPackage").innerHTML =
+data.package || "No Active Package";
+
+
+document.getElementById("packageStatus").innerHTML =
+"Status : " + (data.packageStatus || "Pending");
+
+
+document.getElementById("totalTeam").innerHTML =
+data.team || 0;
+
+
+document.getElementById("teamIncome").innerHTML =
+"Rs " + (data.teamIncome || 0);
+
+
+}
+
+
+});
+
+
+const logoutBtn =
+document.getElementById("logoutBtn");
+
+
+logoutBtn.addEventListener("click", async()=>{
+
+
+await signOut(auth);
+
+
+alert("Logout Successful");
+
+
+window.location.href="login.html";
+
+
+});
+
+
+</script>
+
 
 </div>
-
 
 </body>
 
-  </html>
+</html> 
