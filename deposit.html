@@ -12,9 +12,12 @@
 
 </head>
 
+
 <body>
 
+
 <div class="container">
+
 
 <div class="card" style="text-align:center;">
 
@@ -22,14 +25,19 @@
 
 <h3>Deposit Payment</h3>
 
-<p>Please complete your payment using the JazzCash account below.</p>
+<p>
+Complete your payment and submit details.
+</p>
 
 </div>
 
 
+
 <div class="card">
 
+
 <h2>JazzCash Payment Details</h2>
+
 
 <p><b>Account Holder Name</b></p>
 
@@ -37,7 +45,9 @@
 Ullah Rakhi
 </h3>
 
+
 <br>
+
 
 <p><b>JazzCash Number</b></p>
 
@@ -45,23 +55,25 @@ Ullah Rakhi
 03038369744
 </h2>
 
+
 <br>
 
-<p><b>Selected Package</b></p>
 
-<h3 id="packageName">
+<h3>Selected Package</h3>
+
+<h2 id="packageName">
 Loading...
-</h3>
+</h2>
 
-<p><b>Package Amount</b></p>
 
-<h3 id="packageAmount">
+<h3>Package Amount</h3>
+
+<h2 id="packageAmount">
 Rs 0
-</h3>
+</h2>
+
 
 </div>
-
-
 <div class="card">
 
 <h2>Submit Payment Details</h2>
@@ -123,12 +135,14 @@ serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
 
-const packageName =
+
+const packageNameElement =
 document.getElementById("packageName");
 
 
-const packageAmount =
+const packageAmountElement =
 document.getElementById("packageAmount");
+
 
 
 const senderNumber =
@@ -149,28 +163,31 @@ document.getElementById("submitDeposit");
 
 
 const selectedPackage =
-localStorage.getItem("selectedPackage") || "No Package Selected";
+localStorage.getItem("selectedPackage");
+
 
 
 const selectedAmount =
-Number(localStorage.getItem("packageAmount")) || 0;
+Number(localStorage.getItem("packageAmount"));
 
 
 
-packageName.innerHTML = selectedPackage;
-
-
-packageAmount.innerHTML =
-"Rs " + selectedAmount;
+packageNameElement.innerHTML =
+selectedPackage || "No Package Selected";
 
 
 
+packageAmountElement.innerHTML =
+"Rs " + (selectedAmount || 0);
+  
 onAuthStateChanged(auth,(user)=>{
 
 
 if(!user){
 
 window.location.href="login.html";
+
+return;
 
 }
 
@@ -179,7 +196,8 @@ window.location.href="login.html";
 
 
 
-submitDeposit.addEventListener("click",async()=>{
+
+submitDeposit.addEventListener("click", async()=>{
 
 
 const user = auth.currentUser;
@@ -196,10 +214,11 @@ return;
 
 
 
-if(selectedPackage==="No Package Selected"){
+if(!selectedPackage || !selectedAmount){
 
 
-alert("Please select a package first.");
+alert("Please select package first.");
+
 
 return;
 
@@ -208,23 +227,11 @@ return;
 
 
 
-if(senderNumber.value.trim()==="" ||
-trxId.value.trim()===""){
+if(senderNumber.value.trim()==="" || trxId.value.trim()===""){
 
 
-alert("Please fill all details.");
+alert("Please fill all required fields.");
 
-return;
-
-
-}
-
-
-
-if(paymentScreenshot.files.length===0){
-
-
-alert("Please upload payment screenshot.");
 
 return;
 
@@ -264,7 +271,7 @@ createdAt:serverTimestamp()
 
 
 
-alert("Deposit request submitted successfully!");
+alert("Deposit Request Submitted Successfully!");
 
 
 
@@ -290,4 +297,4 @@ alert(error.message);
 
 </body>
 
-</html> 
+</html>
