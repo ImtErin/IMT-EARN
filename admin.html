@@ -1,32 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Admin Panel - IMT EARN</title>
-
-<link rel="stylesheet" href="style.css">
-
-</head>
-
-<body>
-
-<div class="container">
-
-<div class="card" style="text-align:center;">
-
-<h1>🛠️ IMT EARN</h1>
-
-<h2>Admin Panel</h2>
-
-<p>Manage Deposit & Withdraw Requests</p>
-
-</div>
-
-
 <div class="card">
 
 <h2>📥 Deposit Requests</h2>
@@ -59,17 +30,24 @@ import { auth, db } from "./firebase.js";
 
 
 import {
+
 onAuthStateChanged
+
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
 
 
 import {
+
 collection,
 getDocs,
 doc,
 getDoc,
-updateDoc
+setDoc,
+updateDoc,
+serverTimestamp
+
 } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
+
 
 
 const requestList =
@@ -93,11 +71,14 @@ return;
 }
 
 
+
 const depositSnapshot =
 await getDocs(collection(db,"deposits"));
 
 
+
 requestList.innerHTML="";
+
 
 
 depositSnapshot.forEach((docSnap)=>{
@@ -106,29 +87,36 @@ depositSnapshot.forEach((docSnap)=>{
 const data = docSnap.data();
 
 
+
 requestList.innerHTML += `
 
 <div class="card">
 
-<h3>📦 ${data.package}</h3>
+<h3>📦 ${data.package || "No Package"}</h3>
 
-<p>Amount: Rs ${data.amount}</p>
+<p><b>Amount:</b> Rs ${data.amount || 0}</p>
 
-<p>Sender: ${data.senderNumber}</p>
+<p><b>Sender:</b> ${data.senderNumber || ""}</p>
 
-<p>TRX ID: ${data.trxId}</p>
+<p><b>TRX ID:</b> ${data.trxId || ""}</p>
 
-<p>Status: ${data.status}</p>
+<p><b>Status:</b> ${data.status}</p>
+
 
 <br>
 
+
 <button onclick="approveRequest('${docSnap.id}')">
+
 ✅ Approve
+
 </button>
 
 
 <button onclick="rejectRequest('${docSnap.id}')">
+
 ❌ Reject
+
 </button>
 
 
@@ -139,21 +127,16 @@ requestList.innerHTML += `
 
 });
 
-// Deposit Approve
+// Deposit Approve System
 
 window.approveRequest = async (id)=>{
-
 
 try{
 
 
-const depositRef =
-doc(db,"deposits",id);
+const depositRef = doc(db,"deposits",id);
 
-
-const depositSnap =
-await getDoc(depositRef);
-
+const depositSnap = await getDoc(depositRef);
 
 
 if(!depositSnap.exists()){
@@ -165,9 +148,7 @@ return;
 }
 
 
-
-const depositData =
-depositSnap.data();
+const depositData = depositSnap.data();
 
 
 
@@ -179,26 +160,50 @@ status:"Approved"
 
 
 
-const userRef =
-doc(db,"users",depositData.uid);
+const userRef = doc(db,"users",depositData.uid);
 
+
+const userSnap = await getDoc(userRef);
+
+
+
+if(userSnap.exists()){
 
 
 await updateDoc(userRef,{
 
-package:depositData.package,
+package: depositData.package,
 
 packageStatus:"Approved",
 
-balance:depositData.amount,
+balance: Number(depositData.amount || 0),
 
-updatedAt:new Date()
+updatedAt: serverTimestamp()
 
 });
 
 
+}else{
 
-alert("Deposit Approved & User Activated!");
+
+await setDoc(userRef,{
+
+package: depositData.package,
+
+packageStatus:"Approved",
+
+balance: Number(depositData.amount || 0),
+
+createdAt: serverTimestamp()
+
+},{merge:true});
+
+
+}
+
+
+
+alert("Deposit Approved Successfully!");
 
 location.reload();
 
@@ -206,9 +211,7 @@ location.reload();
 
 }catch(error){
 
-
 alert(error.message);
-
 
 }
 
@@ -217,8 +220,8 @@ alert(error.message);
 
 
 
-// Deposit Reject
 
+// Deposit Reject
 
 window.rejectRequest = async(id)=>{
 
@@ -244,18 +247,15 @@ alert("Deposit Rejected!");
 location.reload();
 
 
-
 }catch(error){
 
-
 alert(error.message);
-
 
 }
 
 
 };
-
+  
 
 // Withdraw Requests Load
 
@@ -272,32 +272,35 @@ withdrawSnapshot.forEach((docSnap)=>{
 const data = docSnap.data();
 
 
-
 withdrawList.innerHTML += `
 
 <div class="card">
 
 <h3>💸 Withdraw Request</h3>
 
-<p><b>Account Name:</b> ${data.accountName}</p>
+<p><b>Account Name:</b> ${data.accountName || ""}</p>
 
-<p><b>Account Number:</b> ${data.accountNumber}</p>
+<p><b>Account Number:</b> ${data.accountNumber || ""}</p>
 
-<p><b>Amount:</b> Rs ${data.amount}</p>
+<p><b>Amount:</b> Rs ${data.amount || 0}</p>
 
-<p><b>Status:</b> ${data.status}</p>
+<p><b>Status:</b> ${data.status || "Pending"}</p>
 
 
 <br>
 
 
 <button onclick="approveWithdraw('${docSnap.id}')">
+
 ✅ Approve
+
 </button>
 
 
 <button onclick="rejectWithdraw('${docSnap.id}')">
+
 ❌ Reject
+
 </button>
 
 
@@ -310,6 +313,7 @@ withdrawList.innerHTML += `
 
 
 
+// Withdraw Approve
 
 window.approveWithdraw = async(id)=>{
 
@@ -330,17 +334,14 @@ status:"Approved"
 );
 
 
-alert("Withdraw Approved!");
+alert("Withdraw Approved Successfully!");
 
 location.reload();
 
 
-
 }catch(error){
 
-
 alert(error.message);
-
 
 }
 
@@ -350,6 +351,7 @@ alert(error.message);
 
 
 
+// Withdraw Reject
 
 window.rejectWithdraw = async(id)=>{
 
@@ -375,12 +377,9 @@ alert("Withdraw Rejected!");
 location.reload();
 
 
-
 }catch(error){
 
-
 alert(error.message);
-
 
 }
 
@@ -392,6 +391,9 @@ alert(error.message);
 </script>
 
 
+</div>
+
+
 </body>
 
-</html>
+</html> 
